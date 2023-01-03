@@ -1,113 +1,95 @@
-apiVersion: tekton.dev/v1alpha1
-kind: PipelineResource
-metadata:
-  name: reverse-words-git
-spec:
-  type: git
-  params:
-  - name: url
-    value: <reversewords_git_repo>
-  - name: revision
-    value: main
-  - name: sslVerify
-    value: "false"
 ---
-apiVersion: tekton.dev/v1alpha1
-kind: PipelineResource
-metadata:
-  name: reverse-words-image
-spec:
-  type: image
-  params:
-  - name: url
-    value: <reversewords_quay_repo>
----
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: reverse-words-build-pipeline
+  name: build-pipeline
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.17.0"
+    tekton.dev/tags: app-build
+    tekton.dev/displayName: "build-pipeline"
+    tekton.dev/platforms: "linux/amd64"
 spec:
-  resources:
-  - name: app-git
-    type: git
-  - name: app-image
-    type: image
+  description: >-
+    The Build Pipeline lints, tests, builds and pushes a container image for our Go test application.
+
+  workspaces:
+    - name: source-ws
+      description: Location where source is stored.
+    - name: dockerconfig-ws
+      description: Location where credentials for quay are stored.
+
   params:
-  - name: imageTag
-    type: string
-    default: latest
-    description: Tag for the built image
+    - name: APP_IMAGE
+      description: The name of where to store the app image.
+      default: "quay.io/mavazque/rhte22-devsecops-app"
+    - name: APP_IMAGE_TAG
+      description: The tag for the app image.
+      default: "latest"
+    - name: SOURCE_URL
+      description: A git repo url where the source code resides.
+      default: "https://github.com/ocp-tigers/rhte22-devsecops-app.git"
+    - name: SOURCE_REFERENCE
+      description: The branch, tag or SHA to checkout.
+      default: "main"
+
   tasks:
+    - name: fetch-from-git
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: $(params.SOURCE_URL)
+        - name: revision
+          value: $(params.SOURCE_REFERENCE)
+      workspaces:
+        - name: output
+          workspace: source-ws
 
-  - name: lint
-    taskRef:
-      name: golangci-lint
-    params:
-      - name: package
-        value: <golang_package>
-      - name: flags
-        value: --verbose
-      - name: GOOS
-        value: "linux"
-    resources:
-      inputs:
-      - name: source
-        resource: app-git
+    - name: lint-code
+      runAfter:
+        - fetch-from-git
+      taskRef:
+        name: golangci-lint
+      workspaces:
+        - name: source
+          workspace: source-ws
+      params:
+        - name: package
+          value: "github.com/ocp-tigers/rhte22-devsecops-app"
 
-  - name: test
-    taskRef:
-      name: golang-test
-    runAfter:
-      - lint
-    params:
-      - name: package
-        value: <golang_package>
-      - name: GOOS
-        value: "linux"
-    resources:
-      inputs:
-      - name: source
-        resource: app-git
+    - name: test-code
+      runAfter:
+        - lint-code
+      taskRef:
+        name: golang-test
+      workspaces:
+        - name: source
+          workspace: source-ws
+      params:
+        - name: package
+          value: "github.com/ocp-tigers/rhte22-devsecops-app"
+        - name: version
+          value: "1.18"
 
-  - name: build-and-push
-    taskRef:
-      name: build-from-dockerfile
-    runAfter:
-      - test
-    params:
-      - name: DOCKERFILE_PATH
-        value: "./Dockerfile"
-      - name: IMAGE_TAG
-        value: "$(params.imageTag)"
-    resources:
-      inputs:
-      - name: source
-        resource: app-git
-      outputs:
-      - name: image
-        resource: app-image
+    - name: build-and-push-container-image
+      runAfter:
+        - test-code
+      taskRef:
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: source-ws
+        - name: dockerconfig
+          workspace: dockerconfig-ws
+      params:
+        - name: IMAGE
+          value: "$(params.APP_IMAGE)"
+        - name: IMAGE_TAG
+          value: "$(params.APP_IMAGE_TAG)"
+        - name: DOCKERFILE
+          value: "./Containerfile"
+        - name: STORAGE_DRIVER
+          value: "vfs"
 
-  - name: update-stage-deployment-image
-    taskRef:
-      name: image-updater
-    runAfter:
-      - build-and-push
-    params:
-      - name: driver
-        value: "github"
-      - name: file-path
-        value: "deployment.yaml"
-      - name: image-repo
-        value: "<reversewords_quay_repo>"
-      - name: new-image-url
-        value: "<reversewords_quay_repo>:$(params.imageTag)"
-      - name: source-branch
-        value: "stage"
-      - name: source-repo
-        value: "<imageBuilder_sourcerepo>"
-      - name: update-key
-        value: "spec.template.spec.containers.0.image"
-      - name: insecure
-        value: "true"
-      - name: branch-generate-name
-        value: ""
