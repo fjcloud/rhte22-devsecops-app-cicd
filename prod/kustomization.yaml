@@ -8,5 +8,6 @@ bases:
 resources:
   - namespace.yaml
   - route.yaml
-patchesStrategicMerge:
-  - deployment.yaml
+images:
+  - name: quay.io/mavazque/rhte22-devsecops-app
+    newTag: prod
