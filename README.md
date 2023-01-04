@@ -16,27 +16,35 @@ Below steps have been tested with OpenShift Pipelines Operator v1.8.2
     read -s QUAY_PASSWORD
     export QUAY_PASSWORD
     export QUAY_TOKEN=$(echo -n ${QUAY_USERNAME}:${QUAY_PASSWORD} | base64 -w0)
-    envsubst < quay-credentials.yaml | oc -n rhte22-devsecops-app-ci create -f -
+    envsubst < others/quay-credentials.yaml | oc -n rhte22-devsecops-app-ci create -f -
     ~~~
 3. Create the secret required for triggering the pipeline from the webhook
 
     ~~~sh
     oc -n rhte22-devsecops-app-ci create secret generic webhook-secret --from-literal=secret=v3r1s3cur3
     ~~~
-
 4. Create the required yamls for the pipeline
 
     ~~~sh
-    oc -n rhte22-devsecops-app-ci create -f buildah-role.yaml
-    oc -n rhte22-devsecops-app-ci create -f buildah.yaml
-    oc -n rhte22-devsecops-app-ci create -f git-clone.yaml
-    oc -n rhte22-devsecops-app-ci create -f golangci-lint.yaml
-    oc -n rhte22-devsecops-app-ci create -f golang-test.yaml
-    oc -n rhte22-devsecops-app-ci create -f build-pipeline.yaml
-    oc -n rhte22-devsecops-app-ci create -f trigger-template.yaml
+    oc -n rhte22-devsecops-app-ci create -f others/buildah-role.yaml
+    oc -n rhte22-devsecops-app-ci create -f tasks/buildah.yaml
+    oc -n rhte22-devsecops-app-ci create -f tasks/git-clone.yaml
+    oc -n rhte22-devsecops-app-ci create -f tasks/golangci-lint.yaml
+    oc -n rhte22-devsecops-app-ci create -f tasks/golang-test.yaml
+    oc -n rhte22-devsecops-app-ci create -f tasks/cosign.yaml
+    oc -n rhte22-devsecops-app-ci create -f tasks/image-check.yaml
+    oc -n rhte22-devsecops-app-ci create -f pipelines/build-pipeline.yaml
+    oc -n rhte22-devsecops-app-ci create -f pipelines/build-pipeline-signed.yaml
+    oc -n rhte22-devsecops-app-ci create -f pipelines/trigger-template.yaml
+    ~~~
+5. Generate Cosign KeyPair to sign the container images
+
+    ~~~sh
+    cd others/
+    cosign generate-key-pair k8s://rhte22-devsecops-app-ci/cosign
     ~~~
 
-5. Go to the [App git repo](https://github.com/ocp-tigers/rhte22-devsecops-app) and configure the webhook as follows
+6. Go to the [App git repo](https://github.com/ocp-tigers/rhte22-devsecops-app) and configure the webhook as follows
 
     1. Click on `Settings` -> `Webhooks`
     2. Create the following `Hook`
