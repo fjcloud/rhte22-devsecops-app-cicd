@@ -1,0 +1,13 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rhte22-devsecops-app
+  name: rhte22-devsecops-app
+spec:
+  template:
+    spec:
+      containers:
+      - name: rhte22-devsecops-app
+        image: quay.io/mavazque/tekton-reversewords:prod

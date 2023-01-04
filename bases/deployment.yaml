@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rhte22-devsecops-app
+  labels:
+    app: rhte22-devsecops-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rhte22-devsecops-app
+  template:
+    metadata:
+      labels:
+        app: rhte22-devsecops-app
+    spec:
+      containers:
+      - name: rhte22-devsecops-app
+        image: quay.io/mavazque/rhte22-devsecops-app:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 1
+          timeoutSeconds: 2
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 1 
+          timeoutSeconds: 2
+          periodSeconds: 15

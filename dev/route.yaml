@@ -1,0 +1,15 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: rhte22-devsecops-app
+spec:
+  host: rhte22-devsecops-dev.apps.rhte22.mavazque.sysdeseng.com
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  to:
+    kind: "Service"
+    name: rhte22-devsecops-app
+    weight: 100
