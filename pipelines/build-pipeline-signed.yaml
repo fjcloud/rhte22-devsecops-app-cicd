@@ -117,3 +117,22 @@ spec:
           value: cosign
         - name: NAMESPACE
           value: "$(params.NAMESPACE)"
+
+    - name: check-image
+      runAfter:
+        - sign-image
+      taskRef:
+        kind: Task
+        name: rox-image-check
+      workspaces:
+        - name: source
+          workspace: source-ws
+      params:
+        - name: rox_api_token
+          value: roxsecrets
+        - name: rox_central_endpoint
+          value: roxsecrets
+        - name: IMAGE
+          value: "$(params.APP_IMAGE)"
+        - name: IMAGE_TAG
+          value: "$(params.APP_IMAGE_TAG)"

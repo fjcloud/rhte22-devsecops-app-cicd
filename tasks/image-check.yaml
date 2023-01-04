@@ -13,7 +13,10 @@ spec:
       name: rox_api_token
       type: string
     - description: "Full name of image to scan"
-      name: image
+      name: IMAGE
+      type: string
+    - description: "Tag of image to scan"
+      name: IMAGE_TAG
       type: string
   results:
     - description: Output of `roxctl image check`
@@ -36,7 +39,6 @@ spec:
       script: >-
         #!/usr/bin/env bash
 
-        echo $ROX_CENTRAL_ENDPOINT
         ROX_API_TOKEN=$(echo $ROX_API_TOKEN | sed -e 's/\\n//g')
 
         curl -k -L -H "Authorization: Bearer $ROX_API_TOKEN" https://$ROX_CENTRAL_ENDPOINT/api/cli/download/roxctl-linux --output ./roxctl  > /dev/null; echo "Getting roxctl"
@@ -44,7 +46,7 @@ spec:
         chmod +x ./roxctl > /dev/null
 
         ./roxctl image check --insecure-skip-tls-verify -e $ROX_CENTRAL_ENDPOINT
-        --image $(params.image)
+        --image $(params.IMAGE):$(params.IMAGE_TAG)
       workingDir: $(workspaces.source.path)
   workspaces:
     - name: source
