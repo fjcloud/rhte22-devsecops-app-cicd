@@ -8,7 +8,7 @@ metadata:
   annotations:
     tekton.dev/pipelines.minVersion: "0.17.0"
     tekton.dev/tags: app-build
-    tekton.dev/displayName: "build-pipeline"
+    tekton.dev/displayName: "build-pipeline-unsigned"
     tekton.dev/platforms: "linux/amd64"
 spec:
   description: >-
