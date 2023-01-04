@@ -32,9 +32,21 @@ Below steps have been tested with OpenShift Pipelines Operator v1.8.2
     oc -n rhte22-devsecops-app-ci create -f tasks/git-clone.yaml
     oc -n rhte22-devsecops-app-ci create -f tasks/golangci-lint.yaml
     oc -n rhte22-devsecops-app-ci create -f tasks/golang-test.yaml
+    oc -n rhte22-devsecops-app-ci create -f cosign.yaml
+    oc -n rhte22-devsecops-app-ci create -f image-check.yaml
     oc -n rhte22-devsecops-app-ci create -f pipelines/build-pipeline.yaml
+    oc -n rhte22-devsecops-app-ci create -f pipelines/build-pipeline-signed.yaml
     oc -n rhte22-devsecops-app-ci create -f pipelines/trigger-template.yaml
     ~~~
+
+4. Generate Cosign KeyPair to sign the container images
+
+    ~~~sh
+    cd others
+    cosign generate-key-pair k8s://rhte22-devsecops-app-ci/cosign
+    ~~~
+
+    NOTE: private part is generated
 
 5. Go to the [App git repo](https://github.com/ocp-tigers/rhte22-devsecops-app) and configure the webhook as follows
 
