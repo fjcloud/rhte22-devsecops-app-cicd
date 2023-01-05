@@ -37,6 +37,14 @@ spec:
       description: Namespace where the pipeline will run
       type: string
       default: rhte22-devsecops-app-ci
+    - name: ARGOCD_NAMESPACE
+      description: Namespace where ArgoCD runs
+      type: string
+      default: openshift-gitops
+    - name: ARGOCD_APP_NAME
+      description: ArgoCD Application name that will be updated by the image-updater
+      type: string
+      default: rhte22-devsecops-app-dev
 
   tasks:
     - name: fetch-from-git
@@ -136,3 +144,16 @@ spec:
           value: "$(params.APP_IMAGE)"
         - name: IMAGE_TAG
           value: "$(params.APP_IMAGE_TAG)"
+
+    - name: update-image-tag-on-git
+      runAfter:
+        - check-image
+      taskRef:
+        name: image-updater
+      params:
+        - name: IMAGE_TAG
+          value: "$(params.APP_IMAGE_TAG)"
+        - name: ARGOCD_NAMESPACE
+          value: "$(params.ARGOCD_NAMESPACE)"
+        - name: APP_NAME
+          value: "$(params.ARGOCD_APP_NAME)"

@@ -36,6 +36,12 @@ spec:
         value: https://github.com/ocp-tigers/rhte22-devsecops-app.git
       - name: SOURCE_REFERENCE
         value: $(tt.params.git-revision)
+      - name: NAMESPACE
+        value: rhte22-devsecops-app-ci
+      - name: ARGOCD_NAMESPACE
+        value: openshift-gitops
+      - name: ARGOCD_APP_NAME
+        value: rhte22-devsecops-app-dev
       pipelineRef:
         name: build-pipeline
       resources: []

@@ -27,12 +27,14 @@ Below steps have been tested with OpenShift Pipelines Operator v1.8.2
 
     ~~~sh
     oc -n rhte22-devsecops-app-ci create -f others/buildah-role.yaml
+    oc -n rhte22-devsecops-app-ci create -f others/image-updater-role.yaml
     oc -n rhte22-devsecops-app-ci create -f tasks/buildah.yaml
     oc -n rhte22-devsecops-app-ci create -f tasks/git-clone.yaml
     oc -n rhte22-devsecops-app-ci create -f tasks/golangci-lint.yaml
     oc -n rhte22-devsecops-app-ci create -f tasks/golang-test.yaml
     oc -n rhte22-devsecops-app-ci create -f tasks/cosign.yaml
     oc -n rhte22-devsecops-app-ci create -f tasks/image-check.yaml
+    oc -n rhte22-devsecops-app-ci create -f tasks/image-updater.yaml
     oc -n rhte22-devsecops-app-ci create -f pipelines/build-pipeline.yaml
     oc -n rhte22-devsecops-app-ci create -f pipelines/build-pipeline-signed.yaml
     oc -n rhte22-devsecops-app-ci create -f pipelines/trigger-template.yaml
