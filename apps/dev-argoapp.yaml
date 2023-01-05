@@ -1,5 +1,20 @@
 ---
 apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: development
+  namespace: openshift-gitops
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  destinations:
+  - namespace: '*'
+    server: '*'
+  sourceRepos:
+  - '*'
+---
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: rhte22-devsecops-app-dev
@@ -19,7 +34,7 @@ spec:
     path: dev/
     repoURL: 'https://github.com/ocp-tigers/rhte22-devsecops-app-cicd'
     targetRevision: cd
-  project: default
+  project: development
   syncPolicy:
     automated:
       prune: true
