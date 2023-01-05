@@ -10,4 +10,4 @@ resources:
 - route.yaml
 images:
 - name: quay.io/mavazque/rhte22-devsecops-app
-  newTag: prod
+  newTag: f6b12b81829e0eb1bc264b2ec81d37626909e961
