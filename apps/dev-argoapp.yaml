@@ -1,0 +1,32 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rhte22-devsecops-app-dev
+  namespace: openshift-gitops
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: rhte22-devsecops-app=quay.io/mavazque/rhte22-devsecops-app
+    argocd-image-updater.argoproj.io/rhte22-devsecops-app.update-strategy: manual
+    argocd-image-updater.argoproj.io/git-branch: cd
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/write-back-target: "kustomization:/dev/"
+spec:
+  destination:
+    name: ''
+    namespace: ''
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: dev/
+    repoURL: 'https://github.com/ocp-tigers/rhte22-devsecops-app-cicd'
+    targetRevision: cd
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 1
+        maxDuration: 3m0s
+      limit: 1000
