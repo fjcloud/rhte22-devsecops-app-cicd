@@ -4,10 +4,10 @@ commonAnnotations:
   argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 namespace: rhte22-devsecops-app-prod
 bases:
-  - ../bases/
+- ../bases/
 resources:
-  - namespace.yaml
-  - route.yaml
+- namespace.yaml
+- route.yaml
 images:
-  - name: quay.io/mavazque/rhte22-devsecops-app
-    newTag: prod
+- name: quay.io/mavazque/rhte22-devsecops-app
+  newTag: prod
