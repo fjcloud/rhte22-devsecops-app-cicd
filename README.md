@@ -88,7 +88,11 @@ Below steps have been tested with OpenShift Pipelines Operator v1.8.2
 
 15. After imported, check the policy generated and select the response method as Inform and enforce. In the policy scope restrict the Policy Scope of the Policy to the specific cluster and namespace (in our case rhte22-devsecops-app-ci) and save the policy.
 
-8. Go to the [App git repo](https://github.com/ocp-tigers/rhte22-devsecops-app) and configure the webhook as follows
+16. Add the CICD repository to Argo CD, and add credentials that can push changes (this is required by the pipeline to update the kustomization file).
+
+17. Add the public gnupg key to Argo CD that will be used to verify commits for the production app.
+
+18. Go to the [App git repo](https://github.com/ocp-tigers/rhte22-devsecops-app) and configure the webhook as follows
 
     1. Click on `Settings` -> `Webhooks`
     2. Create the following `Hook`
