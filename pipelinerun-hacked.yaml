@@ -1,0 +1,50 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  annotations:
+    tekton.dev/displayName: build-pipeline-insecure
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/platforms: linux/amd64
+    tekton.dev/tags: app-build
+  labels:
+    app.kubernetes.io/version: "0.1"
+    tekton.dev/pipeline: build-pipeline-insecure
+  generateName: build-pipeline-insecure-
+  namespace: rhte22-devsecops-app-ci
+spec:
+  params:
+  - name: APP_IMAGE
+    value: quay.io/mavazque/rhte22-devsecops-app
+  - name: APP_IMAGE_TAG
+    value: latest
+  - name: SOURCE_URL
+    value: https://github.com/ocp-tigers/rhte22-devsecops-app.git
+  - name: SOURCE_REFERENCE
+    value: hacked
+  - name: NAMESPACE
+    value: rhte22-devsecops-app-ci
+  - name: ARGOCD_NAMESPACE
+    value: openshift-gitops
+  - name: ARGOCD_APP_NAME
+    value: rhte22-devsecops-app-dev
+  pipelineRef:
+    name: build-pipeline-insecure
+  serviceAccountName: pipeline
+  timeout: 1h0m0s
+  workspaces:
+  - name: source-ws
+    volumeClaimTemplate:
+      metadata:
+        creationTimestamp: null
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: gp2
+        volumeMode: Filesystem
+      status: {}
+  - name: dockerconfig-ws
+    secret:
+      secretName: quay-user-pass
