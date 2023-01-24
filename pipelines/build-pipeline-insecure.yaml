@@ -1,0 +1,119 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-pipeline-insecure
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.17.0"
+    tekton.dev/tags: app-build
+    tekton.dev/displayName: "build-pipeline-insecure"
+    tekton.dev/platforms: "linux/amd64"
+spec:
+  description: >-
+    The Build Pipeline lints, tests, builds and pushes a container image for our Go test application.
+
+  workspaces:
+    - name: source-ws
+      description: Location where source is stored.
+    - name: dockerconfig-ws
+      description: Location where credentials for quay are stored.
+
+  params:
+    - name: APP_IMAGE
+      description: The name of where to store the app image.
+      default: "quay.io/mavazque/rhte22-devsecops-app"
+    - name: APP_IMAGE_TAG
+      description: The tag for the app image.
+      default: "latest"
+    - name: SOURCE_URL
+      description: A git repo url where the source code resides.
+      default: "https://github.com/ocp-tigers/rhte22-devsecops-app.git"
+    - name: SOURCE_REFERENCE
+      description: The branch, tag or SHA to checkout.
+      default: "main"
+    - name: NAMESPACE
+      description: Namespace where the pipeline will run
+      type: string
+      default: rhte22-devsecops-app-ci
+    - name: ARGOCD_NAMESPACE
+      description: Namespace where ArgoCD runs
+      type: string
+      default: openshift-gitops
+    - name: ARGOCD_APP_NAME
+      description: ArgoCD Application name that will be updated by the image-updater
+      type: string
+      default: rhte22-devsecops-app-dev
+
+  tasks:
+    - name: fetch-from-git
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: $(params.SOURCE_URL)
+        - name: revision
+          value: $(params.SOURCE_REFERENCE)
+      workspaces:
+        - name: output
+          workspace: source-ws
+
+    - name: lint-code
+      runAfter:
+        - fetch-from-git
+      taskRef:
+        name: golangci-lint
+      workspaces:
+        - name: source
+          workspace: source-ws
+      params:
+        - name: package
+          value: "github.com/ocp-tigers/rhte22-devsecops-app"
+
+    - name: test-code
+      runAfter:
+        - lint-code
+      taskRef:
+        name: golang-test
+      workspaces:
+        - name: source
+          workspace: source-ws
+      params:
+        - name: package
+          value: "github.com/ocp-tigers/rhte22-devsecops-app"
+        - name: version
+          value: "1.18"
+
+    - name: build-and-push-container-image
+      runAfter:
+        - test-code
+      taskRef:
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: source-ws
+        - name: dockerconfig
+          workspace: dockerconfig-ws
+      params:
+        - name: IMAGE
+          value: "$(params.APP_IMAGE)"
+        - name: IMAGE_TAG
+          value: "$(params.APP_IMAGE_TAG)"
+        - name: DOCKERFILE
+          value: "./Containerfile"
+        - name: STORAGE_DRIVER
+          value: "vfs"
+
+    - name: update-image-tag-on-git
+      runAfter:
+        - build-and-push-container-image
+      taskRef:
+        name: image-updater
+      params:
+        - name: IMAGE_TAG
+          value: "$(params.APP_IMAGE_TAG)"
+        - name: ARGOCD_NAMESPACE
+          value: "$(params.ARGOCD_NAMESPACE)"
+        - name: APP_NAME
+          value: "$(params.ARGOCD_APP_NAME)"
