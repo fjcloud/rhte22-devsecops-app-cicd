@@ -16,7 +16,7 @@ spec:
   - name: APP_IMAGE
     value: quay.io/mavazque/rhte22-devsecops-app
   - name: APP_IMAGE_TAG
-    value: latest
+    value: manualmain
   - name: SOURCE_URL
     value: https://github.com/ocp-tigers/rhte22-devsecops-app.git
   - name: SOURCE_REFERENCE
