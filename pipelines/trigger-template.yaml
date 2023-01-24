@@ -71,6 +71,12 @@ spec:
     - kind: ClusterTriggerBinding
       ref: github-push
     interceptors:
+      - name: "Validate this is a push to main"
+        ref:
+          name: "cel"
+        params:
+        - name: "filter"
+          value: "body.ref.startsWith('refs/heads/main')"
       - name: "Validate GitHub payload and filter on eventType"
         ref:
           name: "github"
@@ -79,7 +85,6 @@ spec:
           value: 
             secretName: webhook-secret
             secretKey: secret
-          
         - name: "eventTypes"
           value: ["push"]
     template:
