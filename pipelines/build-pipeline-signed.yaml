@@ -23,13 +23,13 @@ spec:
   params:
     - name: APP_IMAGE
       description: The name of where to store the app image.
-      default: "quay.io/mavazque/rhte22-devsecops-app"
+      default: "quay.io/fjacquinrh/rhte22-devsecops-app"
     - name: APP_IMAGE_TAG
       description: The tag for the app image.
       default: "latest"
     - name: SOURCE_URL
       description: A git repo url where the source code resides.
-      default: "https://github.com/ocp-tigers/rhte22-devsecops-app.git"
+      default: "https://github.com/fjcloud/rhte22-devsecops-app.git"
     - name: SOURCE_REFERENCE
       description: The branch, tag or SHA to checkout.
       default: "main"
@@ -69,7 +69,7 @@ spec:
           workspace: source-ws
       params:
         - name: package
-          value: "github.com/ocp-tigers/rhte22-devsecops-app"
+          value: "github.com/fjcloud/rhte22-devsecops-app"
 
     - name: test-code
       runAfter:
@@ -81,7 +81,7 @@ spec:
           workspace: source-ws
       params:
         - name: package
-          value: "github.com/ocp-tigers/rhte22-devsecops-app"
+          value: "github.com/fjcloud/rhte22-devsecops-app"
         - name: version
           value: "1.18"
 
