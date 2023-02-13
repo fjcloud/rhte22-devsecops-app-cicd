@@ -10,4 +10,4 @@ resources:
 - route.yaml
 images:
 - name: quay.io/fjacquinrh/rhte22-devsecops-app
-  newTag: latest
+  newTag: 044ef1b04232d48175f1ea20cea7c8b7f691203f
