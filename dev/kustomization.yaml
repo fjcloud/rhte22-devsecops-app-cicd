@@ -12,4 +12,4 @@ images:
 - name: quay.io/mavazque/rhte22-devsecops-app
   newTag: d6b0cf96636d11bef1a37beb17b5fb9dc88602a5
 - name: quay.io/fjacquinrh/rhte22-devsecops-app
-  newTag: 2f55ed0cca6ff9161fcef1ce131a50d1471c876c
+  newTag: 9a0c998fd5ebec55724bd9ff95022b9ef01773fc
