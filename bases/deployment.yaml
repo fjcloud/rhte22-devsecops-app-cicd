@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: rhte22-devsecops-app
-        image: quay.io/mavazque/rhte22-devsecops-app:latest
+        image: quay.io/fjacquinrh/rhte22-devsecops-app:latest
         ports:
         - containerPort: 8080
           name: http
