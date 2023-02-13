@@ -3,7 +3,7 @@ kind: Route
 metadata:
   name: rhte22-devsecops-app
 spec:
-  host: rhte22-devsecops-prod.apps.rhte22.mavazque.sysdeseng.com
+  host: rhte22-devsecops-prod.apps.ocp-lab1.dev.redlabclub.eu
   port:
     targetPort: 8080
   tls:
