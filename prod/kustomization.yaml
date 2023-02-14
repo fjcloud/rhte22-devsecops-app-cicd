@@ -9,5 +9,5 @@ resources:
 - namespace.yaml
 - route.yaml
 images:
-- name: quay.io/mavazque/rhte22-devsecops-app
+- name: quay.io/fjacquinrh/rhte22-devsecops-app
   newTag: manualhacked
